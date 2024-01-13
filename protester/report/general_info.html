@@ -1,0 +1,149 @@
+{# templates/general_info.html #}
+
+
+{% set table_class = 'NoneResult' %}
+{% macro overall_result_tb_class(status) %}
+  {% if status == 'Pass'  %}
+      PositiveResult
+  {% elif status == 'Fail' %}
+      NegativeResult
+  {% endif %}
+{% endmacro %}
+
+{% set resultCell_class = 'DefaultResultCell' %}
+{% macro style_class(status) %}
+  {% if status == 'Pass' %}
+      PositiveResultCell
+  {% elif status == 'Fail' %}
+      NegativeResultCell
+  {% elif status == 'error' %}
+      ErrorResultCell
+  {% elif "skip" in status.lower() %}
+      WarningCell
+      {% set resultCell_class = 'WarningCell' %}
+  {% else %}
+      DefaultResultCell
+  {% endif %}
+{% endmacro %}
+
+{% macro get_skip_and_nx_detail(result) %}
+  {% if "skip" in result["status"].lower() %}
+      {{ result["detail"] }}
+  {% endif %}
+{% endmacro %}
+
+<!-- Add content specific to the child template -->
+<a name="TOP"></a>
+<table class="HeadingTable">
+  <tr>
+    <td>
+      <big class="Heading1">Report: {{title}}</big>
+    </td>
+  </tr>
+</table>
+<center>
+  <table class="OverallResultTable">
+    <tr>
+      <td class="{{overall_result_tb_class(overall_result)}}">Test {{overall_result}}ed</td>
+    </tr>
+  </table>
+</center>
+<a name="GeneralTestInfo"></a>
+<table class="SubHeadingTable">
+  <tr>
+    <td>
+      <div class="Heading2">General Test Information</div>
+    </td>
+  </tr>
+</table>
+<div class="Indentation">
+  {% for sut_config in sut_configs%}
+  <div class="Heading4">{{sut_config["heading"]}}</div>
+  <div class="Indentation">
+    {% for table in sut_config["tables"]%}
+    <table>
+      <tr>
+        <td class="CellNoColor">{{table["label"]}} </td>
+        <td class="CellNoColor">{{table["detail"]}}</td>
+      </tr>
+    </table>
+    {% endfor %}
+  </div>
+  {% endfor %}
+</div>
+<a name="TestOverview"></a>
+<table class="SubHeadingTable">
+  <tr>
+    <td>
+      <div class="Heading2">Test Overview</div>
+    </td>
+  </tr>
+</table>
+<div class="Indentation">
+  <table class="DefaultTable">
+    <tr>
+      <td style="padding-right: 0.5em;" class="CellNoColor">Test begin: </td>
+      <td style="padding-right: 0.5em;" class="CellNoColor">{{test_info["begin"]["timestamp"]}}</td>
+      <td class="CellNoColor">(logging timestamp    {{test_info["begin"]["ms"]}})</td>
+    </tr>
+    <tr>
+      <td style="padding-right: 0.5em;" class="CellNoColor">Test end: </td>
+      <td style="padding-right: 0.5em;" class="CellNoColor">{{test_info["end"]["timestamp"]}}</td>
+      <td class="CellNoColor" nowrap>(logging timestamp    {{test_info["end"]["ms"]}})</td>
+    </tr>
+  </table>
+  <div class="Heading4">Statistics</div>
+  <div class="Indentation">
+    <table class="OverviewTable">
+      {% for statistic in statistics %}
+      <tr>
+        <td class="DefineCell">{{statistic["label"]}} </td>
+        <td class="NumberCell" width="60">{{statistic["count"]}} </td>
+        <td class="DefaultCell">{{statistic["detail"]}}</td>
+      </tr>
+      {% endfor %}
+    </table>
+  </div>
+  <div class="Heading4">Test Case Results</div>
+  <div class="Indentation">
+
+    <table class="OverviewTable">
+    {% for suite in test_suites %}
+      {% set suite_index = loop.index  %}
+        <tr>
+            <td class="DefineCell">
+            <b>{{ suite_index }}</b>
+            </td>
+            <td class="DefineCell" colspan="4">
+            <a href="#{{suite_index}}">
+                <b>{{ suite.name }}</b>
+            </a>
+            </td>
+        </tr>
+        
+
+        {% for testcase in suite.testcases %}
+          
+            <tr>
+                <td class="DefineCell">{{ suite_index }}.{{ loop.index }}</td>
+                <td class="DefaultCell">{{ testcase.name }}</td>
+                <td class="DefaultCell">
+                    {{ testcase.description }}
+                </td>
+                <!-- <td class="PositiveResultCell">{{ testcase.attributes["result"]["status"] }}</td> -->
+                <td class="{{ style_class(testcase.attributes['result']['status']) }}">
+                  <a href="#{{ suite_index }}_{{ loop.index }}">
+                    {{ testcase.attributes["result"]["status"] }}
+                  </a>
+                </td>
+                <td class="DefaultCell">
+                  {{ get_skip_and_nx_detail(testcase.attributes["result"]) }}
+              </td>
+            </tr>
+        {% endfor %}
+    {% endfor %}
+    </table>
+  </div>
+</div>
+
+

@@ -1,0 +1,43 @@
+<a name="TestModuleInfo"></a>
+<table class="SubHeadingTable">
+    <tr>
+        <td class="LinkCell">
+            <a class="Undecorated" id="lnk_" href="javascript:switchAll('',document.all['lnk_'].text)">[−]</a>
+        </td>
+        <td>
+            <div class="Heading2">Test Module Information</div>
+        </td>
+    </tr>
+</table>
+<div id="div_">
+    {% for sut_info in sut_infos%}
+    <div class="Heading4">{{sut_info["heading"]}}</div>
+    <div class="Indentation">
+        <table class="OverviewTable">
+            {% for table in sut_info.tables %}
+            <tr>
+                {% for key, value in table.items() %}
+                <td class="Cell">{{ value }}</td>
+                {% endfor %}
+            </tr>
+            {% endfor %}
+
+        </table>
+    </div>
+    {% endfor %}
+</div>
+<table class="SubHeadingTable">
+    <tr>
+        <td>
+            <big class="Heading2">Test Case Details</big>
+        </td>
+    </tr>
+</table>
+{% include 'test/tests.html' %}
+<table class="SubHeadingTable">
+    <tr>
+        <td>
+        <div class="Heading2">End of Report</div>
+        </td>
+    </tr>
+</table>

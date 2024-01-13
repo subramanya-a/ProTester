@@ -1,0 +1,26 @@
+{# templates/template.html #}
+
+{% extends "base.html" %}
+
+{% block title %}Test Report - {{ page_title }}{% endblock %}
+
+{% block styles %}
+<style type="text/css">
+  /* Add additional styles specific to the child template */
+</style>
+{% endblock %}
+
+{% block content %}
+
+  <!-- Include another template with values -->
+  {% include 'general_info.html' %}
+  {% include 'test/module.html' %}
+
+  <!-- Rest of the child template content -->
+{% endblock %}
+
+{% block scripts %}
+<script type="text/javascript">
+  // Add additional scripts specific to the child template
+</script>
+{% endblock %}

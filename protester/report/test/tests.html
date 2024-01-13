@@ -1,0 +1,122 @@
+{% for suite in test_suites %}
+{% set suite_index = loop.index  %}
+
+{% macro get_doc(item) %}
+  {% if item.attributes["doc"] is not none %}
+    {{ item.attributes["doc"] }}
+  {% endif %}
+{% endmacro %}
+
+{% macro get_testcase_id(testcase) %}
+  {% if testcase.attributes.get("id") is not none %}
+    {{ testcase.attributes.get("id") }}
+  {% endif %}
+{% endmacro %}
+
+<table class="GroupHeadingTable">
+    <tr>
+        <td class="LinkCell">
+            <a class="Undecorated" id="lnk_{{suite_index}}" href="javascript:switchAll('{{suite_index}}',document.all['lnk_{{suite_index}}'].text)">[−]</a>
+        </td>
+        <td>
+            <big class="Heading3">
+                <a name="{{suite_index}}">{{suite_index}} {{suite}}</a>
+            </big>
+        </td>
+    </tr>
+</table>
+<div id="div_1">
+    <p>{{get_doc(suite)}}</p>
+</div>
+{% for testcase in suite.testcases %}
+{% set Header_class = 'TestcaseHeadingDefaultResult' %}
+
+{% if testcase.attributes["result"]["status"] == 'Pass'  %}
+    {% set Header_class = 'TestcaseHeadingPositiveResult' %}
+{% elif testcase.attributes["result"]["status"] == 'Fail' %}
+    {% set Header_class = 'TestcaseHeadingNegativeResult' %}
+{% endif %}
+
+
+{% if testcase.attributes["result"]["status"] not in ["Skipped","Skipped Execution", "Not Executed"] %}
+    
+<table>
+    <tr>
+        <td class="LinkCell">
+            <a class="Undecorated" id="lnk_{{ suite_index }}.{{ loop.index }}" href="javascript:switchAll('{{ suite_index }}.{{ loop.index }}',document.all['lnk_{{ suite_index }}.{{ loop.index }}'].text)">[−]</a>
+        </td>
+        <td class="{{Header_class}}">
+            <big class="Heading3">{{ suite_index }}.{{ loop.index }} <a name="{{ suite_index }}_{{ loop.index }}">Test Case {{testcase.name}}: {{ get_testcase_id(testcase) }}</a> {{ testcase.attributes["result"]["status"] }}ed</big>
+        </td>
+    </tr>
+</table>
+<div class="Indentation" id="div_{{ suite_index }}.{{ loop.index }}">
+    <p>
+        {{get_doc(testcase)}}
+    </p>
+    <div class="Indentation">
+        <table class="DefaultTable">
+            <tr>
+                <td style="padding-right: 0.5em;" class="CellNoColor">Test case begin: </td>
+                <td style="padding-right: 0.5em;" class="CellNoColor">{{ testcase.attributes["begin"]["timestamp"] }}</td>
+                <td class="CellNoColor">(logging timestamp {{ testcase.attributes["begin"]["ms"] }})</td>
+            </tr>
+            <tr>
+                <td style="padding-right: 0.5em;" class="CellNoColor">Test case end: </td>
+                <td style="padding-right: 0.5em;" class="CellNoColor">{{ testcase.attributes["end"]["timestamp"] }}</td>
+                <td class="CellNoColor" nowrap>(logging timestamp {{ testcase.attributes["end"]["ms"] }})</td>
+            </tr>
+        </table>
+    </div>
+    <div class="Indentation"></div>
+    {% if testcase.steps.get_logs()|length > 0 %}
+    <table class="TestGroupHeadingBackground">
+        <tr>
+            <td>
+                <big class="Heading3">Main Part of Test Case</big>
+            </td>
+        </tr>
+    </table>
+    <div class="Indentation">
+        <table class="ResultTable">
+            <tr>
+                <th class="TableHeadingCell" width="1px">Timestamp</th>
+                <th class="TableHeadingCell" width="1px">Test Step</th>
+                <th class="TableHeadingCell" width="auto">Description</th>
+                <th class="TableHeadingCell" width="1px">Result</th>
+            </tr>
+            {% for step in testcase.steps.get_logs() %}
+            <tr>
+                <td class="DefineCell">{{step.timestamp["ms"]}}</td>
+                <td class="NumberCell">{{step.step}}</td>
+                <td class="DefaultCell">{{step.result}}</td>
+                <td class="DefaultCell">{{step.status}}</td>
+            </tr>
+            {% endfor %}
+        </table>
+    </div>
+    {% endif %}
+    
+    {% if testcase.attributes["result"]["status"] == 'Fail' %}
+    {% set error = testcase.attributes["result"]["detail"]  %}
+    <div class="Heading4">Trace info</div>
+    <div class="Indentation">
+        <table class="OverviewTable">
+            <tr>
+                <td class="ErrorResultCell">{{error["excp_type"]}}</td>
+                <td class="DefaultCell">{{ error["file"] }}[{{ error["line"] }}]</td>
+                <td class="DefaultCell">{{ error["assert_code"] }}</td>
+            </tr>
+        </table>
+    </div>
+    {% endif %}
+</div>
+{% endif %}
+
+{% endfor %}
+<table class="GroupEndTable">
+    <tr>
+        <td>End of Test Group: {{suite}}</td>
+    </tr>
+</table>
+{% endfor %}

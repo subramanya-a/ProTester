@@ -1,0 +1,16 @@
+# Ignore compiled Python files
+__pycache__/
+
+# Ignore log files
+*.log
+
+# Ignore virtual environment directories
+venv/
+
+# Ignore build and distribution directories
+dist/
+build/
+protester.egg-info/
+
+# Ignore any file or directory starting with a dot
+#.*
