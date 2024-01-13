@@ -28,6 +28,11 @@ To install ProTester, use the following command:
 ```
 $ python setup.py install
 ```
+or
+
+```
+$ pip install git+https://github.com/subramanya-a/ProTester.git
+```
 
 ## Project Contributors
 
