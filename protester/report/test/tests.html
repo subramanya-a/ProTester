@@ -26,7 +26,7 @@
     </tr>
 </table>
 <div id="div_1">
-    <p>{{get_doc(suite)}}</p>
+    <p>{{get_doc(suite)| safe}}</p>
 </div>
 {% for testcase in suite.testcases %}
 {% set Header_class = 'TestcaseHeadingDefaultResult' %}
@@ -52,7 +52,7 @@
 </table>
 <div class="Indentation" id="div_{{ suite_index }}.{{ loop.index }}">
     <p>
-        {{get_doc(testcase)}}
+        {{get_doc(testcase)| safe}}
     </p>
     <div class="Indentation">
         <table class="DefaultTable">

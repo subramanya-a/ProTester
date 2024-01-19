@@ -10,6 +10,9 @@ from . TestCaseCollections import protester_collections, TestSuiteCollection, Te
 from jinja2 import Environment, FileSystemLoader
 from protester.conditions import is_lambda
 import getpass
+import sys
+# add the path of working directory to the the sys path
+sys.path.append(os.getcwd())
 
 
 def calculate_ratio(numerator, denominator):
@@ -32,14 +35,22 @@ class Runner:
         self.not_x, self.skipped_x = 0, 0
         self.load_test_files(self.path)
 
+    def is_test_file(self, file_name):
+        return file_name.endswith("_test.py") or file_name.startswith("test_")
+
     def load_test_files(self, path):
         if path.endswith(("__pycache__","html")):
             return
-        if os.path.isfile(path):
-            # list the function only if the file has python extension
-            if path.endswith("py"):
-                self.test_files.append(path)
+        
+        # list the function only if the file has python extension and is test file
+        # if os.path.isfile(path) and path.endswith(".py") and self.is_test_file(os.path.basename(path)):
+        if os.path.isfile(path) and path.endswith(".py"): # protester hooks can be in any file, so test_*.py or *_test.py checks are removed
+            self.test_files.append(path)
+        
         elif os.path.isdir(path):
+            # Add the directory path to sys.path
+            sys.path.append(path)
+
             for nested_path in os.listdir(path):
                 self.load_test_files(path + "/" + nested_path)
 
@@ -331,7 +342,7 @@ class Runner:
         params = {}
         if class_ins:
             # If it's a class method, pass the self instance
-            params['self'] = self
+            params['self'] = class_ins
 
         if test_params is not None: 
             # Get the default parameters
