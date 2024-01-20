@@ -183,25 +183,26 @@ class Runner:
         # Step 1: Check if variant is supported
         variants = testcase.attributes.get("variants", None)
         # check if the variants is available, and not empty
-        if variants is not None:
-            if len(variants):
-                status, message = protester_collections.execute_protester_function("protester_is_variant_supported",(True,"Default supported!"),
-                                            params={"variants":variants})
-                if not status:
-                    testcase.update_attribute("result",
-                                            {
-                                                "status": testcase.verbose("SX"),
-                                                "detail": message
-                                            })
-                    self.not_x += 1 
-                    return False
+        # if variants is not None:
+        if variants:
+            status, message = protester_collections.execute_protester_function("protester_is_variant_supported",(True,"Default supported!"),
+                                        params={"variants":variants})
+            if not status:
+                testcase.update_attribute("result",
+                                        {
+                                            "status": testcase.verbose("SX"),
+                                            "detail": message
+                                        })
+                self.not_x += 1 
+                return False
 
         # Step 2: Check skip conditions
         skipif_conditions =testcase.attributes.get("skipif", [])
         skipif_results = []
         message = "no reason provided by tester"
         #  check the condition, if the conditions is not none  
-        if (len(skipif_conditions) > 0):
+        # if skipif_conditions is not None and len(skipif_conditions) > 0:
+        if skipif_conditions:
             for index, condition in enumerate(skipif_conditions):            
                 try:
                     if is_lambda(condition):
@@ -245,7 +246,8 @@ class Runner:
         message = "no reason provided by tester"
 
         #  check the condition, if the conditions is not none  
-        if (len(skipif_conditions) > 0):
+        # if executeif_conditions is not None and len(executeif_conditions) > 0:
+        if executeif_conditions:
             for index, condition in enumerate(executeif_conditions):            
                 try:
                     if is_lambda(condition):
@@ -255,7 +257,7 @@ class Runner:
                         print(f"Regular function: {condition.__name__}")
                         status, message = condition(**params)
                     else:
-                        print("Non-callable element in skip conditions.")
+                        print("Non-callable element in xskip conditions.")
                         status, message = condition
 
                     print(status, message)
