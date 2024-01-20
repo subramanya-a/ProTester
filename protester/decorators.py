@@ -139,16 +139,15 @@ def info(id, description="", extra_tags=[]):
 
 #     return decorator
 
+
 def sequence(index):
     def decorator(func):
-        @wraps(func)
-        def wrapper(*args, **kwargs):
-            return func(*args, **kwargs)
-        
-        wrapper._sequence_index = index
-        
-        return wrapper
+        func._sequence_index = index
+        return func
+    
     return decorator
+
+
 
 from unittest.mock import patch
 def set_variable(variable_name, value):

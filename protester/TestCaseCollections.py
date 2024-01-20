@@ -280,6 +280,9 @@ class ProTesterCollections(Collection):
     def clear_testsuites(self):
         self.testsuites.clear()
 
+    def order_testsuites(self, key='sequence'):
+        self.testsuites = sorted(self.testsuites, key=lambda x: x.attributes.get(key, float('inf')))
+    
     def execute_protester_function(self,function_name, result_default= None, params={}):
         """
         Execute the function with the specified name from the list of dictionaries.

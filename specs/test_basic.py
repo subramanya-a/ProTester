@@ -82,16 +82,32 @@ def test_failure(protest, *args, **kwargs):
 def test_not_equal_failure(protest, *args, **kwargs):
     assert (1*5)==1, "check failed 5 != 1"
 
-class TESTSUTE:
+class TEST_SUTE:
     """
     This Test Suite is sample tests which contains both positive and negative testcases 
     """
     @sequence(1.0)
     def test_suite_success(self, protest,**kwargs):
         assert 1==1
-    
+        
+    @session_exec(setup_function=lambda: print("Setting up..."), teardown_function=lambda: print("Tearing down..."))
     def test_suite_failure(self, protest,**kwargs):
         assert 1!=1
+
+@sequence(1.0)
+class TEST_SEQ:
+    """
+    This Test Suite is sample tests which contains both positive and negative testcases 
+    """
+    @sequence(1.0)
+    @info(id="TC051", description="Test Case description", extra_tags=["tag1", "tag2"])
+    def test_2suite_success(self, protest,**kwargs):
+        assert 1==1
+    
+    @info(id="TC051", description="Test Case description", extra_tags=["tag1", "tag2"])
+    def test_2suite_failure(self, protest,**kwargs):
+        assert 1!=1
+
 
 def somefunc(some)-> (bool,str):
     return (False, "some reason to be skif, this condition is not skipped if false")

@@ -409,6 +409,9 @@ class Runner:
         for test_file in self.test_files:
             self.run_single_file(test_file)
         
+        # order the test suite sequence
+        self.protester_collections.order_testsuites()
+        
         # Add the ungrouped testcase to the main testcase collection
         if self.test_suite_ungrouped is not None:
             # Order the test cases by name/sequence
