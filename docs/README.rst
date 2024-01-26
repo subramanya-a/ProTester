@@ -2,10 +2,12 @@ ProTester Documentation
 =======================
 
 Introduction
-------------
+============
 ProTester is a Python test automation framework designed to provide a straightforward interface for automating tests with built-in functionalities. The library offers convenient decorators for defining test case order, capturing requirements, managing session functions, handling dependencies, and more.
 
 Features
+========
+Overview
 --------
 1. **Testcase Order of Execution:** The `@sequence(index)` decorator orders test cases during execution based on the provided index.
 
@@ -21,8 +23,26 @@ Features
 
 7. **Parallel Execution (Under Development):** Feature for executing test cases in parallel.
 
+Feature applicability  
+---------------------
+
+|Feature | Test Suite/Class | Test Case/Method | Entire Module |
+| :--- | :---:| :---:| :---:|
+|Info  | - | x | -|
+|Sequence  | x | x | -|
+|Session Exec  | x | x | -|
+|Dependency  | x | x | -|
+|Parameters*  | - | x | -|
+|Multiple Iteration*  | - | - | x|
+|Parallel Execution*  | - | - | x|
+
+ 
+"x" indicates that the feature is applicable to the corresponding test suite/class, test case/method, or entire module.
+"-" indicates that the feature is not applicable or under development.
+"*" indicates that the feature is under development.
+
 Installation
-------------
+============
 To install ProTester, use the following command:
 
 ```
@@ -34,7 +54,8 @@ or
 $ pip install git+https://github.com/subramanya-a/ProTester.git
 ```
 
-## Project Contributors
+Project Contributors
+====================
 
 - [Subramanya A](https://github.com/subramanya-a/) (@Subramanya.a)
 

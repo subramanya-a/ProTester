@@ -175,29 +175,31 @@ class Runner:
             self.failures += 1
             return False, LogException(e)
  
-    def testcase_depedency_check(self,testcase, params,**kwargs ):
+    def dependency_check(self,item, params,**kwargs):
         """
         This method checks the dependency and returns the appropriate result.
         Returns True if the test case dependency is okay to execute, False otherwise.
+        Input:
+        item : test suite or case 
         """
         # Step 1: Check if variant is supported
-        variants = testcase.attributes.get("variants", None)
+        variants = item.attributes.get("variants", None)
         # check if the variants is available, and not empty
         # if variants is not None:
         if variants:
             status, message = protester_collections.execute_protester_function("protester_is_variant_supported",(True,"Default supported!"),
                                         params={"variants":variants})
             if not status:
-                testcase.update_attribute("result",
+                item.update_attribute("result",
                                         {
-                                            "status": testcase.verbose("SX"),
+                                            "status": item.verbose("SX"),
                                             "detail": message
                                         })
                 self.not_x += 1 
                 return False
 
         # Step 2: Check skip conditions
-        skipif_conditions =testcase.attributes.get("skipif", [])
+        skipif_conditions =item.attributes.get("skipif", [])
         skipif_results = []
         message = "no reason provided by tester"
         #  check the condition, if the conditions is not none  
@@ -215,7 +217,7 @@ class Runner:
                         print("Non-callable element in skip conditions.")
                         status, message = condition
                     
-                    # By default if the function has no return status allow the execution, insted of blocking
+                    # By default if the function has no return status allow the execution, instead of blocking
                     skipif_results.append(bool(status) if status is not None else False)
 
                     if message is None or message == "":
@@ -227,21 +229,21 @@ class Runner:
                         break
                 except Exception as e:
                     print(f"Error at index {index}: {e}")
-                    testcase.update_attribute("result", {"status": testcase.verbose("F"), "detail": e})
+                    item.update_attribute("result", {"status": item.verbose("F"), "detail": e})
                     return False
             
             if any(skipif_results):
                 print(f"Skipping due to skip conditions {message}")
-                testcase.update_attribute("result",
+                item.update_attribute("result",
                                         {
-                                            "status": testcase.verbose("S"),
+                                            "status": item.verbose("S"),
                                             "detail": message
                                         })
                 self.skipped_x += 1
                 return False
         
         # # Step 3: Check execute conditions
-        executeif_conditions =testcase.attributes.get("executeif", [])
+        executeif_conditions =item.attributes.get("executeif", [])
         executeif_results = []
         message = "no reason provided by tester"
 
@@ -261,7 +263,7 @@ class Runner:
                         status, message = condition
 
                     print(status, message)
-                    # By default if the function has no return status allow the execution, insted of blocking
+                    # By default if the function has no return status allow the execution, instead of blocking
                     executeif_results.append(bool(status) if status is not None else False)
 
                     if message is None or message == "":
@@ -273,28 +275,28 @@ class Runner:
                         break
                 except Exception as e:
                     print(f"Error at index {index}: {e}")
-                    testcase.update_attribute("result", {"status": testcase.verbose("F"), "detail": LogException(e)})
+                    item.update_attribute("result", {"status": item.verbose("F"), "detail": LogException(e)})
                     return False
             
             if any(executeif_results): 
                 # execute if any one is true
                 print(f"execute Skipped due to skip conditions")
-                testcase.update_attribute("result",
+                item.update_attribute("result",
                                         {
-                                            "status": testcase.verbose("SX"),
+                                            "status": item.verbose("SX"),
                                             "detail": message
                                         })
                 self.not_x += 1 
                 return False
         
-        # above negitave case are covered, if reaching here should be positive
+        # above negative case are covered, if reaching here should be positive
         return True
     
     def execute_test(self,testcase, params, kwargs ):
 
-        # check for the depedency, execute only if true
-        if self.testcase_depedency_check(testcase, params,**kwargs ):
-            # check the execution conditions 
+        # check for the dependency, execute only if true
+        if self.dependency_check(testcase, params,**kwargs ):
+            # check the pre-execution conditions 
             pre_func = testcase.attributes.get("pre", None)
             if callable(pre_func): pre_func()
 
@@ -328,6 +330,7 @@ class Runner:
             else: 
                 testcase.update_attribute("result", {"status": testcase.verbose("F"), "detail": result})
 
+            # check the post-execution conditions 
             post_func = testcase.attributes.get("post", None)
             if callable(post_func): post_func()
 
@@ -337,7 +340,7 @@ class Runner:
             #     print(testcase.attributes)
 
     def testcase_execute(self, testcase,class_ins):
-        # check the test case flag to esecute or skip
+        # check the test case flag to execute or skip
 
         test_params = testcase.attributes.get("params", None)
         kwargs = {}
@@ -383,23 +386,34 @@ class Runner:
         self.protester_collections.update_attribute("begin", self.protester_collections.get_time())
         for testsuite in self.protester_collections.testsuites:
             suite_class = testsuite.attributes.get("cls", None)
-            class_insstance = None
-            if suite_class is not None:
-                class_insstance = suite_class()
             
+            # check for the dependency, execute only if true
+            if self.dependency_check(testsuite, params= {}):
+                # check the pre-execution conditions 
+                pre_func = testsuite.attributes.get("pre", None)
+                if callable(pre_func): pre_func()
 
-            print("###################################################################")
-            print(f"Running testsuite: {testsuite}")
-            for testcase in testsuite.get_testcases():
-                print(f"Running testcase: {testcase}")
+                class_instance = None
+                if suite_class is not None:
+                    class_instance = suite_class()
                 
-                testcase.update_attribute("begin", testcase.get_time())
-                self.testcase_execute(testcase, class_ins=class_insstance)
-                testcase.update_attribute("end", testcase.get_time())
-                
+                print("###################################################################")
+                print(f"Running testsuite: {testsuite}")
+                for testcase in testsuite.get_testcases():
+                    print(f"Running testcase: {testcase}")
+                    
+                    testcase.update_attribute("begin", testcase.get_time())
+                    self.testcase_execute(testcase, class_ins=class_instance)
+                    testcase.update_attribute("end", testcase.get_time())
+                    
 
-            print("###################################################################")
-            print("")
+                print("###################################################################")
+                print("")
+
+                # check the post-execution conditions 
+                post_func = testsuite.attributes.get("post", None)
+                if callable(post_func): post_func()
+
         self.protester_collections.update_attribute("end", self.protester_collections.get_time())
 
     def run_single_file(self, file):

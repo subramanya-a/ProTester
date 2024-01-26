@@ -114,11 +114,29 @@
             <td class="DefineCell">
             <b>{{ suite_index }}</b>
             </td>
-            <td class="DefineCell" colspan="4">
-            <a href="#{{suite_index}}">
-                <b>{{ suite.name }}</b>
-            </a>
-            </td>
+            
+            {% if suite.attributes['result']['status'] in ["Skipped","Skipped Execution"] %}
+              <td class="DefineCell" colspan="3">
+                <a href="#{{suite_index}}">
+                    <b>{{ suite.name }}</b>
+                </a>
+              </td>
+
+              <td class="{{ style_class(suite.attributes['result']['status']) }}" rowspan={{(suite.testcases | length) + 1}}>
+                <a>
+                  {{ get_skip_and_nx_detail(suite.attributes["result"]) }}
+                </a>
+              </td>
+            {% else %}
+              <td class="DefineCell" colspan="4">
+                <a href="#{{suite_index}}">
+                    <b>{{ suite.name }}</b>
+                </a>
+              </td>
+            {% endif %}
+
+
+              
         </tr>
         
 

@@ -95,6 +95,22 @@ class TEST_SUTE:
         assert 1!=1
 
 @sequence(1.0)
+@dependency(
+    variants=["base", "lite"],
+    skipif=[
+        lambda: (1 != 1, "execution skip due to"),  # Example executeif condition 1
+        # lambda: is_pass(""), # if none, will return false 
+        # lambda: is_pass("TESTSUTE::test_suite_failure"),
+        # lambda: is_pass("test_suite_success"),
+        # lambda: is_pass("test_success"),
+        # lambda: is_pass("test_not_equal_failure"),
+        # lambda: is_fail("TESTSUTE::test_suite_failure"),
+    ],
+    executeif=[
+        lambda: (1 != 1, "execution skip for 1==1 ")  # Example executeif condition 1
+    ]
+)
+@session_exec(setup_function=lambda: print("test suite Setting up..."), teardown_function=lambda: print("test suite Tearing down..."))
 class TEST_SEQ:
     """
     This Test Suite is sample tests which contains both positive and negative testcases 
@@ -118,7 +134,7 @@ def somefunc(some)-> (bool,str):
 @dependency(
     variants=["base", "lite"],
     skipif=[
-        lambda: (1 != 1, "execution skip due to"),  # Example executeif condition 1
+        lambda: (1 == 1, "execution skip due to"),  # Example executeif condition 1
         somefunc(""),
         # lambda: is_pass(""), # if none, will return false 
         # lambda: is_pass("TESTSUTE::test_suite_failure"),
