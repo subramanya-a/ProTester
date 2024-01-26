@@ -436,7 +436,9 @@ class Runner:
             #adding test suit of ungrouped
             self.protester_collections.add_testsuite(self.test_suite_ungrouped)
 
+        self.protester_collections.execute_protester_function("protester_pre_sut_setup", [],params={})
         self.run_test()
+        self.protester_collections.execute_protester_function("protester_post_sut_setup", [],params={})
 
         total_test = self.successes + self.failures + self.not_x + self.skipped_x
         executed_test = self.successes + self.failures 

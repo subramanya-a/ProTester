@@ -3,6 +3,8 @@ from protester.conditions import is_pass, is_fail
 from protester.TestCaseCollections import Info
 import sys, os
 from pathlib import Path
+from specs.listener import setup_log_event_handlers, variant_event
+from protester.event import post_event
 
 ############################################################################
 #                       PRO TESTER CONFIG
@@ -13,7 +15,7 @@ def protester_sut_info(items:Info):
     """
 
     test_module = items.add_header("Violations occurred (not within test cases)")
-    test_module.add_table_item("warinig ", "some info to captute in the log")
+    test_module.add_table_item("warning ", "some info to capture in the log")
 
     return items.get_infos()
     
@@ -22,22 +24,29 @@ def protester_pre_sut_setup():
     """
     This method is called before all test to setup the test env
     """
-    pass
-
+    # subscribe all log events
+    setup_log_event_handlers()
+    
+    # Set test Variants
+    post_event("test_variants", ["lite"])
+    post_event("protester_log", "protester_pre_sut_setup completed" )
+    
 def protester_post_sut_setup():
     """
     This method is called after all test for re-test env
     """
-    pass
-
+    post_event("protester_log", "protester_post_sut_setup completed" )
+    
 def protester_is_variant_supported(variants: list) -> bool:
     """
     This method is called before all test to setup the test env
     """
+    
     for variant in variants:
-        if variant in ["lite"]:
+        if variant in variant_event.get_variants():
             return True, "Variant Lite B is supported"
-        
+    
+
     return False, "Skipping due to unsupported variant"
 
 def protester_report_title():
@@ -150,7 +159,7 @@ def somefunc(some)-> (bool,str):
 @session_exec(setup_function=lambda: print("Setting up..."), teardown_function=lambda: print("Tearing down..."))
 def test_spec_id2(protest, *args, **kwargs):
     """
-    sample test case discriptions or informations 
+    sample test case descriptions or information 
     """
     assert 1==1
     protest.TestLog("Test function body")
